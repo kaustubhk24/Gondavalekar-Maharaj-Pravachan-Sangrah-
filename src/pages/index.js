@@ -27,6 +27,19 @@ const parseDateParts = (dateKey) => {
   return null;
 };
 
+const compareDateKeys = (left, right) => {
+  const leftParts = parseDateParts(left);
+  const rightParts = parseDateParts(right);
+
+  if (!leftParts || !rightParts) {
+    return 0;
+  }
+
+  const leftTime = Date.UTC(leftParts.year, leftParts.month - 1, leftParts.day);
+  const rightTime = Date.UTC(rightParts.year, rightParts.month - 1, rightParts.day);
+  return leftTime - rightTime;
+};
+
 const formatDateLabel = (dateKey, locale = 'hi-IN') => {
   const parts = parseDateParts(dateKey);
   if (!parts) {
@@ -45,7 +58,9 @@ const getTodayKey = () => {
   return `${month}-${day}`;
 };
 
-const availableDates = Array.isArray(availableDatesHi) ? availableDatesHi : [];
+const availableDates = Array.isArray(availableDatesHi)
+  ? [...availableDatesHi].sort(compareDateKeys)
+  : [];
 const defaultDate = (() => {
   const todayKey = getTodayKey();
   return availableDates.includes(todayKey) ? todayKey : availableDates[0] || todayKey;
