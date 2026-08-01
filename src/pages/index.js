@@ -119,14 +119,19 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setShowSplash(false), 1000);
+    if (!showSplash) {
+      document.body.style.overflow = '';
+      return undefined;
+    }
+
     document.body.style.overflow = 'hidden';
+    const timer = window.setTimeout(() => setShowSplash(false), 1000);
 
     return () => {
       window.clearTimeout(timer);
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [showSplash]);
 
   useEffect(() => {
     const loadPravachan = async () => {
@@ -300,7 +305,10 @@ export default function Home() {
 
           {loading && <div className={styles.message}>लोड करत आहे...</div>}
           {error && <div className={styles.error}>{error}</div>}
-          {!loading && !error && (
+          {!loading && !error && !content.trim() && (
+            <div className={styles.emptyState}>Coming soon</div>
+          )}
+          {!loading && !error && content.trim() && (
             <article className={styles.markdown}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
             </article>

@@ -178,6 +178,16 @@
   border: 1px solid #ead8f0;
 }
 
+.emptyState {
+  padding: 24px 18px;
+  border-radius: 16px;
+  background: #f8ecff;
+  color: #6b3d86;
+  font-weight: 700;
+  text-align: center;
+  border: 1px dashed #d9b4e8;
+}
+
 .contentHeader {
   display: flex;
   justify-content: space-between;
