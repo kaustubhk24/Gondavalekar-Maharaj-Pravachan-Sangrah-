@@ -12,6 +12,7 @@ const languages = [
 ];
 
 const buildPravachanUrl = (date, lang) => `/pravachans/${lang}/${date}.md`;
+const DATE_REFERENCE_YEAR = 2024;
 
 const parseDateParts = (dateKey) => {
   const isoMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(dateKey);
@@ -21,7 +22,7 @@ const parseDateParts = (dateKey) => {
 
   const shortMatch = /^([0-9]{2})-([0-9]{2})$/.exec(dateKey);
   if (shortMatch) {
-    return { year: new Date().getFullYear(), month: Number(shortMatch[1]), day: Number(shortMatch[2]) };
+    return { year: DATE_REFERENCE_YEAR, month: Number(shortMatch[1]), day: Number(shortMatch[2]) };
   }
 
   return null;
@@ -35,8 +36,8 @@ const compareDateKeys = (left, right) => {
     return 0;
   }
 
-  const leftTime = Date.UTC(leftParts.year, leftParts.month - 1, leftParts.day);
-  const rightTime = Date.UTC(rightParts.year, rightParts.month - 1, rightParts.day);
+  const leftTime = Date.UTC(DATE_REFERENCE_YEAR, leftParts.month - 1, leftParts.day);
+  const rightTime = Date.UTC(DATE_REFERENCE_YEAR, rightParts.month - 1, rightParts.day);
   return leftTime - rightTime;
 };
 
@@ -45,7 +46,9 @@ const formatDateLabel = (dateKey, locale = 'hi-IN') => {
   if (!parts) {
     return dateKey;
   }
-  return new Date(parts.year, parts.month - 1, parts.day).toLocaleDateString(locale, {
+
+  const safeDate = new Date(DATE_REFERENCE_YEAR, parts.month - 1, parts.day);
+  return safeDate.toLocaleDateString(locale, {
     month: 'long',
     day: 'numeric',
   });
@@ -102,6 +105,33 @@ const availableMonths = Object.keys(availableDatesByMonth)
   .sort((a, b) => a - b);
 
 const availableSet = new Set(availableDates);
+
+const getDateKeyFromDate = (date) => {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}-${day}`;
+};
+
+const getAdjacentAvailableDate = (dateKey, direction) => {
+  const parts = parseDateParts(dateKey);
+  if (!parts) {
+    return null;
+  }
+
+  let cursor = new Date(DATE_REFERENCE_YEAR, parts.month - 1, parts.day);
+  const step = direction === 'next' ? 1 : -1;
+
+  for (let index = 0; index < 400; index += 1) {
+    cursor = new Date(cursor);
+    cursor.setDate(cursor.getDate() + step);
+    const candidate = getDateKeyFromDate(cursor);
+    if (availableSet.has(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+};
 
 const getMonthDays = (month) => new Date(2024, month, 0).getDate();
 const getFirstDayIndex = (month) => new Date(2024, month - 1, 1).getDay();
@@ -162,9 +192,10 @@ export default function Home() {
     }
   }, [selectedDate]);
 
-  const currentIndex = availableDates.indexOf(selectedDate);
-  const hasPrev = currentIndex > 0;
-  const hasNext = currentIndex < availableDates.length - 1;
+  const nextDate = getAdjacentAvailableDate(selectedDate, 'next');
+  const prevDate = getAdjacentAvailableDate(selectedDate, 'prev');
+  const hasPrev = Boolean(prevDate);
+  const hasNext = Boolean(nextDate);
 
   const monthDays = getMonthDays(selectedMonth);
   const firstDayIndex = getFirstDayIndex(selectedMonth);
@@ -319,14 +350,14 @@ export default function Home() {
           <div className={styles.navButtons}>
             <button
               className={styles.navButton}
-              onClick={() => hasPrev && setSelectedDate(availableDates[currentIndex - 1])}
+              onClick={() => hasPrev && setSelectedDate(prevDate)}
               disabled={!hasPrev}
             >
               ← मागील
             </button>
             <button
               className={styles.navButton}
-              onClick={() => hasNext && setSelectedDate(availableDates[currentIndex + 1])}
+              onClick={() => hasNext && setSelectedDate(nextDate)}
               disabled={!hasNext}
             >
               पुढील →
