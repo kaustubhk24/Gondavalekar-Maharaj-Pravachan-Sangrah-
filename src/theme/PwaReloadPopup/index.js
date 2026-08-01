@@ -17,7 +17,7 @@ export default function PwaReloadPopup({ onReload }) {
             id="theme.PwaReloadPopup.info"
             description="The text for PWA reload popup"
           >
-            New version available
+            {({ locale }) => locale === 'hi' ? 'नया संस्करण उपलब्ध है' : 'New version available'}
           </Translate>
         </p>
         <div className={styles.buttonContainer}>
@@ -33,7 +33,7 @@ export default function PwaReloadPopup({ onReload }) {
               id="theme.PwaReloadPopup.refreshButtonText"
               description="The text for PWA reload button"
             >
-              Refresh
+              {({ locale }) => locale === 'hi' ? 'रिफ्रेश' : 'Refresh'}
             </Translate>
           </button>
 

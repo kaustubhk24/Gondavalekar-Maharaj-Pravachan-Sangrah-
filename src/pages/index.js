@@ -14,6 +14,26 @@ const languages = [
 const buildPravachanUrl = (date, lang) => `/pravachans/${lang}/${date}.md`;
 const DATE_REFERENCE_YEAR = 2024;
 
+const getLocalizedText = (selectedLang) => ({
+  loading: selectedLang === 'en' ? 'Loading...' : 'लोड हो रहा है...',
+  noDate: selectedLang === 'en' ? 'No available date found.' : 'कोई उपलब्ध दिनांक नहीं मिला।',
+  unavailable: selectedLang === 'en'
+    ? 'Pravachan is not available for this date. Please try another language or date.'
+    : 'इस तारीख के लिए प्रवचन उपलब्ध नहीं है। कृपया कोई दूसरी भाषा या तारीख चुनें।',
+  emptyState: selectedLang === 'en' ? 'Coming soon' : 'जल्द आ रहा है',
+  splash: selectedLang === 'en' ? 'Loading pravachan collection...' : 'प्रवचन संग्रह लोड हो रहा है...',
+  dateLabel: selectedLang === 'en' ? 'Date' : 'तारीख',
+  languageLabel: selectedLang === 'en' ? 'Language' : 'भाषा',
+  monthLabel: selectedLang === 'en' ? 'Month' : 'माह',
+  calendarSubtitle: selectedLang === 'en' ? 'Choose an available day' : 'उपलब्ध दिन चुनें',
+  prevButton: selectedLang === 'en' ? '← Previous' : '← पिछला',
+  nextButton: selectedLang === 'en' ? 'Next →' : 'अगला →',
+  heroTitle: selectedLang === 'en' ? 'Pravachan collection' : 'प्रवचन संग्रह',
+  heroDescription: selectedLang === 'en'
+    ? 'Choose a date and language to read the pravachan.'
+    : 'तारीख और भाषा चुनें। वर्तमान तारीख के लिए प्रवचन पहले दिखाया जाएगा।',
+});
+
 const parseDateParts = (dateKey) => {
   const isoMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(dateKey);
   if (isoMatch) {
@@ -166,7 +186,7 @@ export default function Home() {
   useEffect(() => {
     const loadPravachan = async () => {
       if (!selectedDate) {
-        setError('कोणताही उपलब्ध दिनांक सापडला नाही.');
++        setError(getLocalizedText(selectedLang).noDate);
         return;
       }
 
@@ -177,7 +197,7 @@ export default function Home() {
         const text = await fetchPravachan(selectedDate, selectedLang);
         setContent(text);
       } catch (err) {
-        setError('प्रवचन उपलब्ध नाही. कृपया दुसरी भाषा किंवा इतर दिनांक निवडा.');
+        setError(getLocalizedText(selectedLang).unavailable);
       } finally {
         setLoading(false);
       }
@@ -201,12 +221,14 @@ export default function Home() {
   const firstDayIndex = getFirstDayIndex(selectedMonth);
   const monthAvailableDays = new Set(availableDatesByMonth[selectedMonth] || []);
 
+  const localizedText = getLocalizedText(selectedLang);
+
   return (
-    <Layout title="प्रवचन संग्रह" description="दिनांक व भाषा निवडा आणि प्रवचन वाचा.">
+    <Layout title={localizedText.heroTitle} description={selectedLang === 'en' ? 'Choose a date and language to read the pravachan.' : 'दिनांक व भाषा निवडा आणि प्रवचन वाचा.'}>
       {showSplash && (
-        <div className={styles.splashScreen} role="dialog" aria-label="Loading screen">
+        <div className={styles.splashScreen} role="dialog" aria-label={localizedText.splash}>
           <img src="/img/maharaj.jpg" alt="Maharaj" className={styles.splashImage} />
-          <div className={styles.splashText}>प्रवचन संग्रह लोड होत आहे...</div>
+          <div className={styles.splashText}>{localizedText.splash}</div>
         </div>
       )}
       <main className={styles.page}>
@@ -214,15 +236,15 @@ export default function Home() {
 
         <section className={styles.hero}>
           <div>
-            <h1>प्रवचन संग्रह</h1>
-            <p>दिनांक व भाषा निवडा. वर्तमान दिनांकासाठी प्रवचन सर्वप्रथम दर्शवा.</p>
+            <h1>{localizedText.heroTitle}</h1>
+            <p>{localizedText.heroDescription}</p>
           </div>
         </section>
 
         <section className={styles.controls}>
           <div className={styles.datePickerWrapper}>
             <div className={styles.controlGroup}>
-              <label htmlFor="date-picker">दिनांक</label>
+              <label htmlFor="date-picker">{localizedText.dateLabel}</label>
               <button
                 type="button"
                 id="date-picker"
@@ -241,7 +263,7 @@ export default function Home() {
                 <div className={styles.calendarPopupHeader}>
                   <div>
                     <div className={styles.calendarTitle}>{monthLabels[selectedMonth - 1]}</div>
-                    <div className={styles.calendarSubtitle}>उपलब्ध दिवस निवडा</div>
+                    <div className={styles.calendarSubtitle}>{localizedText.calendarSubtitle}</div>
                   </div>
                   <button
                     type="button"
@@ -254,7 +276,7 @@ export default function Home() {
 
                 <div className={styles.popupRow}>
                   <label htmlFor="popup-month-select" className={styles.popupLabel}>
-                    महिना
+                    {localizedText.monthLabel}
                   </label>
                   <select
                     id="popup-month-select"
@@ -312,7 +334,7 @@ export default function Home() {
           </div>
 
           <div className={styles.controlGroup}>
-            <label htmlFor="lang-select">भाषा</label>
+            <label htmlFor="lang-select">{localizedText.languageLabel}</label>
             <select
               id="lang-select"
               value={selectedLang}
@@ -334,10 +356,10 @@ export default function Home() {
             <span className={styles.languageBadge}>{languages.find((lang) => lang.id === selectedLang)?.label}</span>
           </div>
 
-          {loading && <div className={styles.message}>लोड करत आहे...</div>}
+          {loading && <div className={styles.message}>{localizedText.loading}</div>}
           {error && <div className={styles.error}>{error}</div>}
           {!loading && !error && !content.trim() && (
-            <div className={styles.emptyState}>Coming soon</div>
+            <div className={styles.emptyState}>{localizedText.emptyState}</div>
           )}
           {!loading && !error && content.trim() && (
             <article className={styles.markdown}>
@@ -353,14 +375,14 @@ export default function Home() {
               onClick={() => hasPrev && setSelectedDate(prevDate)}
               disabled={!hasPrev}
             >
-              ← मागील
+              {localizedText.prevButton}
             </button>
             <button
               className={styles.navButton}
               onClick={() => hasNext && setSelectedDate(nextDate)}
               disabled={!hasNext}
             >
-              पुढील →
+              {localizedText.nextButton}
             </button>
           </div>
         </section>
