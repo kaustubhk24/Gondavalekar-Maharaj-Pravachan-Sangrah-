@@ -116,6 +116,17 @@ export default function Home() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowSplash(false), 1000);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.clearTimeout(timer);
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   useEffect(() => {
     const loadPravachan = async () => {
@@ -156,6 +167,12 @@ export default function Home() {
 
   return (
     <Layout title="प्रवचन संग्रह" description="दिनांक व भाषा निवडा आणि प्रवचन वाचा.">
+      {showSplash && (
+        <div className={styles.splashScreen} role="dialog" aria-label="Loading screen">
+          <img src="/img/maharaj.jpg" alt="Maharaj" className={styles.splashImage} />
+          <div className={styles.splashText}>प्रवचन संग्रह लोड होत आहे...</div>
+        </div>
+      )}
       <main className={styles.page}>
         <PwaInstallButton />
 

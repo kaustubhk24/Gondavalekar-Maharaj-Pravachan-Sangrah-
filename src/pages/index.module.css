@@ -7,6 +7,34 @@
   box-sizing: border-box;
 }
 
+.splashScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f7e6ff 0%, #fff6fb 100%);
+}
+
+.splashImage {
+  width: min(92vw, 360px);
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 24px;
+  box-shadow: 0 18px 45px rgba(93, 29, 114, 0.22);
+}
+
+.splashText {
+  color: #5d1d72;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .hero {
   display: flex;
   flex-direction: column;
