@@ -248,17 +248,8 @@ export default function Home() {
   const [newLanguage, setNewLanguage] = useState(null);
 
   useEffect(() => {
-    const storedLanguage = getStoredLanguage();
-    if (storedLanguage !== selectedLang) {
-      setSelectedLang(storedLanguage);
-      return;
-    }
-
-    try {
-      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLang);
-    } catch (error) {
-    }
-  }, [selectedLang]);
+    setSelectedLang(getStoredLanguage());
+  }, []);
 
   useEffect(() => {
     setNewLanguage(getUnseenNewLanguage());
@@ -278,6 +269,15 @@ export default function Home() {
     } catch (error) {
     }
     setNewLanguage(null);
+  };
+
+  const handleLanguageChange = (event) => {
+    const language = event.target.value;
+    setSelectedLang(language);
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    } catch (error) {
+    }
   };
 
   useEffect(() => {
@@ -462,7 +462,7 @@ export default function Home() {
             <select
               id="lang-select"
               value={selectedLang}
-              onChange={(e) => setSelectedLang(e.target.value)}
+              onChange={handleLanguageChange}
               className={styles.input}
             >
               {languages.map((lang) => (
