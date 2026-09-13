@@ -58,6 +58,35 @@
   line-height: 1.7;
 }
 
+.languageNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  border: 1px solid #ddc0e8;
+  border-radius: 14px;
+  background: #f6e2fc;
+  color: #4f2362;
+  font-weight: 700;
+}
+
+.languageNotice button {
+  flex: 0 0 auto;
+  border: 1px solid #b879ca;
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: transparent;
+  color: #5a2f7a;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.languageNotice button:hover {
+  background: #ead0f2;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;

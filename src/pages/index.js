@@ -8,31 +8,97 @@ import styles from './index.module.css';
 
 const languages = [
   { id: 'hi', label: 'हिंदी' },
+  { id: 'mr', label: 'मराठी', isNew: true },
   { id: 'en', label: 'English' },
 ];
+
+const LANGUAGE_STORAGE_KEY = 'pravachan-selected-language';
+const NEW_LANGUAGE_NOTICE_KEY = 'pravachan-new-language-notice';
+
+const getStoredLanguage = () => {
+  if (typeof window === 'undefined') return 'hi';
+
+  try {
+    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return languages.some((language) => language.id === storedLanguage) ? storedLanguage : 'hi';
+  } catch (error) {
+    return 'hi';
+  }
+};
+
+const getUnseenNewLanguage = () => {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const notifiedLanguages = JSON.parse(window.localStorage.getItem(NEW_LANGUAGE_NOTICE_KEY) || '[]');
+    return languages.find((language) => language.isNew && !notifiedLanguages.includes(language.id)) || null;
+  } catch (error) {
+    return languages.find((language) => language.isNew) || null;
+  }
+};
 
 const buildPravachanUrl = (date, lang) => `/pravachans/${lang}/${date}.md`;
 const DATE_REFERENCE_YEAR = 2024;
 
-const getLocalizedText = (selectedLang) => ({
-  loading: selectedLang === 'en' ? 'Loading...' : 'लोड हो रहा है...',
-  noDate: selectedLang === 'en' ? 'No available date found.' : 'कोई उपलब्ध दिनांक नहीं मिला।',
-  unavailable: selectedLang === 'en'
-    ? 'Pravachan is not available for this date. Please try another language or date.'
-    : 'इस तारीख के लिए प्रवचन उपलब्ध नहीं है। कृपया कोई दूसरी भाषा या तारीख चुनें।',
-  emptyState: selectedLang === 'en' ? 'Coming soon' : 'जल्द आ रहा है',
-  splash: selectedLang === 'en' ? 'Loading pravachan collection...' : 'प्रवचन संग्रह लोड हो रहा है...',
-  dateLabel: selectedLang === 'en' ? 'Date' : 'तारीख',
-  languageLabel: selectedLang === 'en' ? 'Language' : 'भाषा',
-  monthLabel: selectedLang === 'en' ? 'Month' : 'माह',
-  calendarSubtitle: selectedLang === 'en' ? 'Choose an available day' : 'उपलब्ध दिन चुनें',
-  prevButton: selectedLang === 'en' ? '← Previous' : '← पिछला',
-  nextButton: selectedLang === 'en' ? 'Next →' : 'अगला →',
-  heroTitle: selectedLang === 'en' ? 'Pravachan collection' : 'प्रवचन संग्रह',
-  heroDescription: selectedLang === 'en'
-    ? 'Choose a date and language to read the pravachan.'
-    : 'तारीख और भाषा चुनें। वर्तमान तारीख के लिए प्रवचन पहले दिखाया जाएगा।',
-});
+const getLocalizedText = (selectedLang) => {
+  if (selectedLang === 'en') {
+    return {
+      loading: 'Loading...',
+      noDate: 'No available date found.',
+      unavailable: 'Pravachan is not available for this date. Please try another language or date.',
+      emptyState: 'Coming soon',
+      splash: 'Loading pravachan collection...',
+      dateLabel: 'Date',
+      languageLabel: 'Language',
+      monthLabel: 'Month',
+      calendarSubtitle: 'Choose an available day',
+      prevButton: '← Previous',
+      nextButton: 'Next →',
+      heroTitle: 'Pravachan collection',
+      heroDescription: 'Choose a date and language to read the pravachan.',
+      newLanguageNotice: (language) => `${language} is now available.`,
+      dismiss: 'Dismiss',
+    };
+  }
+
+  if (selectedLang === 'mr') {
+    return {
+      loading: 'लोड होत आहे...',
+      noDate: 'उपलब्ध तारीख सापडली नाही.',
+      unavailable: 'या तारखेसाठी प्रवचन उपलब्ध नाही. कृपया दुसरी भाषा किंवा तारीख निवडा.',
+      emptyState: 'लवकरच उपलब्ध होईल',
+      splash: 'प्रवचन संग्रह लोड होत आहे...',
+      dateLabel: 'तारीख',
+      languageLabel: 'भाषा',
+      monthLabel: 'महिना',
+      calendarSubtitle: 'उपलब्ध दिवस निवडा',
+      prevButton: '← मागील',
+      nextButton: 'पुढील →',
+      heroTitle: 'प्रवचन संग्रह',
+      heroDescription: 'प्रवचन वाचण्यासाठी तारीख आणि भाषा निवडा.',
+      newLanguageNotice: (language) => `${language} आता उपलब्ध आहे.`,
+      dismiss: 'बंद करा',
+    };
+  }
+
+  return {
+    loading: 'लोड हो रहा है...',
+    noDate: 'कोई उपलब्ध दिनांक नहीं मिला।',
+    unavailable: 'इस तारीख के लिए प्रवचन उपलब्ध नहीं है। कृपया कोई दूसरी भाषा या तारीख चुनें।',
+    emptyState: 'जल्द आ रहा है',
+    splash: 'प्रवचन संग्रह लोड हो रहा है...',
+    dateLabel: 'तारीख',
+    languageLabel: 'भाषा',
+    monthLabel: 'माह',
+    calendarSubtitle: 'उपलब्ध दिन चुनें',
+    prevButton: '← पिछला',
+    nextButton: 'अगला →',
+    heroTitle: 'प्रवचन संग्रह',
+    heroDescription: 'तारीख और भाषा चुनें। वर्तमान तारीख के लिए प्रवचन पहले दिखाया जाएगा।',
+    newLanguageNotice: (language) => `${language} अब उपलब्ध है।`,
+    dismiss: 'बंद करें',
+  };
+};
 
 const parseDateParts = (dateKey) => {
   const isoMatch = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(dateKey);
@@ -106,9 +172,21 @@ const formatDateOption = (dateString, locale = 'hi-IN') => {
   return formatDateLabel(dateString, locale);
 };
 
-const monthLabels = Array.from({ length: 12 }, (_, index) =>
-  new Date(2024, index, 1).toLocaleDateString('hi-IN', { month: 'long' }),
+const getLocale = (selectedLang) => {
+  if (selectedLang === 'en') return 'en-IN';
+  if (selectedLang === 'mr') return 'mr-IN';
+  return 'hi-IN';
+};
+
+const getMonthLabels = (selectedLang) => Array.from({ length: 12 }, (_, index) =>
+  new Date(2024, index, 1).toLocaleDateString(getLocale(selectedLang), { month: 'long' }),
 );
+
+const weekDaysByLanguage = {
+  hi: ['रवि', 'सोम', 'मंग', 'बुध', 'गुरु', 'शुक्र', 'शनि'],
+  mr: ['रवि', 'सोम', 'मंगळ', 'बुध', 'गुरु', 'शुक्र', 'शनि'],
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+};
 
 const availableDatesByMonth = availableDates.reduce((acc, key) => {
   const parts = parseDateParts(key);
@@ -167,6 +245,40 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSplash, setShowSplash] = useState(true);
+  const [newLanguage, setNewLanguage] = useState(null);
+
+  useEffect(() => {
+    const storedLanguage = getStoredLanguage();
+    if (storedLanguage !== selectedLang) {
+      setSelectedLang(storedLanguage);
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, selectedLang);
+    } catch (error) {
+    }
+  }, [selectedLang]);
+
+  useEffect(() => {
+    setNewLanguage(getUnseenNewLanguage());
+  }, []);
+
+  const dismissNewLanguageNotice = () => {
+    if (!newLanguage) return;
+
+    try {
+      const notifiedLanguages = JSON.parse(window.localStorage.getItem(NEW_LANGUAGE_NOTICE_KEY) || '[]');
+      if (!notifiedLanguages.includes(newLanguage.id)) {
+        window.localStorage.setItem(
+          NEW_LANGUAGE_NOTICE_KEY,
+          JSON.stringify([...notifiedLanguages, newLanguage.id]),
+        );
+      }
+    } catch (error) {
+    }
+    setNewLanguage(null);
+  };
 
   useEffect(() => {
     if (!showSplash) {
@@ -220,6 +332,9 @@ export default function Home() {
   const monthDays = getMonthDays(selectedMonth);
   const firstDayIndex = getFirstDayIndex(selectedMonth);
   const monthAvailableDays = new Set(availableDatesByMonth[selectedMonth] || []);
+  const locale = getLocale(selectedLang);
+  const monthLabels = getMonthLabels(selectedLang);
+  const weekDays = weekDaysByLanguage[selectedLang] || weekDaysByLanguage.hi;
 
   const localizedText = getLocalizedText(selectedLang);
 
@@ -241,6 +356,15 @@ export default function Home() {
           </div>
         </section>
 
+        {newLanguage && (
+          <div className={styles.languageNotice} role="status">
+            <span>{localizedText.newLanguageNotice(newLanguage.label)}</span>
+            <button type="button" onClick={dismissNewLanguageNotice}>
+              {localizedText.dismiss}
+            </button>
+          </div>
+        )}
+
         <section className={styles.controls}>
           <div className={styles.datePickerWrapper}>
             <div className={styles.controlGroup}>
@@ -251,7 +375,7 @@ export default function Home() {
                 className={styles.datePickerButton}
                 onClick={() => setCalendarOpen((open) => !open)}
               >
-                {formatDate(selectedDate)}
+                {formatDate(selectedDate, locale)}
                 <span className={styles.calendarIcon}>▾</span>
               </button>
             </div>
@@ -293,7 +417,7 @@ export default function Home() {
                 </div>
 
                 <div className={styles.weekDays}>
-                  {['रवि', 'सोम', 'मंग', 'बुध', 'गुरु', 'शुक्र', 'शनि'].map((day) => (
+                  {weekDays.map((day) => (
                     <div key={day} className={styles.weekDay}>
                       {day}
                     </div>
@@ -352,7 +476,7 @@ export default function Home() {
 
         <section className={styles.contentSection}>
           <div className={styles.contentHeader}>
-            <h2>{formatDate(selectedDate)}</h2>
+            <h2>{formatDate(selectedDate, locale)}</h2>
             <span className={styles.languageBadge}>{languages.find((lang) => lang.id === selectedLang)?.label}</span>
           </div>
 
