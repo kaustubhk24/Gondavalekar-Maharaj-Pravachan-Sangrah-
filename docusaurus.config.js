@@ -8,6 +8,26 @@ const config = {
   url: 'https://pravachane.sangrah.justinclicks.com',
   baseUrl: '/',
 
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {
+        async: true,
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-4MQ0MT841M',
+      },
+    },
+    {
+      tagName: 'script',
+      attributes: {},
+      innerHTML: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-4MQ0MT841M');
+      `,
+    },
+  ],
+
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
